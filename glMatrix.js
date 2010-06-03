@@ -1,9 +1,10 @@
 /* 
- * glMatrix.js - High performance matrix and vector operations for WebGL 
+ * glMatrix.js - High performance matrix and vector operations for WebGL
+ * version 0.8 (Because no one want's to use a 0.1!)
  */
  
 /*
- * Copyright (c) 2009 Brandon Jones
+ * Copyright (c) 2010 Brandon Jones
  *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
