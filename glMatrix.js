@@ -156,7 +156,27 @@ vec3.dot = function(vec, vec2){
 	return vec[0] * vec2[0] + vec[1] * vec2[1] + vec[2] * vec2[2];
 };
 
-// TODO: Distance?
+vec3.direction = function(vec, vec2, dest) {
+	if(!dest) { dest = vec; }
+	
+	var x = vec[0] - vec2[0];
+	var y = vec[1] - vec2[1];
+	var z = vec[2] - vec2[2];
+	
+	var len = Math.sqrt(x * x + y * y + z * z);
+	if (len == 0) { 
+		dest[0] = 0; 
+		dest[1] = 0; 
+		dest[2] = 0;
+		return dest; 
+	}
+	
+	var ilen = 1 / len;
+	dest[0] = x * ilen; 
+	dest[1] = y * ilen; 
+	dest[2] = z * ilen;
+	return dest; 
+};
 
 /*
  * Matrix (3x3)
@@ -733,8 +753,43 @@ mat4.ortho = function(left, right, bottom, top, near, far, dest) {
 	return dest;
 };
 
-mat4.str = function(mat) {
-	return '[' + mat.join(',') + ']';
+// TODO: This function has not been optimized
+mat4.lookAt = function(eye, center, up, dest) {
+	
+	var x = vec3.create(), y = vec3.create(), z = vec3.create();
+	
+	vec3.direction(eye, center, z);
+	vec3.normalize(vec3.cross(up, z, x));
+	vec3.normalize(vec3.cross(z, x, y));
+
+	var mat = mat4.create();
+	
+	mat[0] = x[0];
+	mat[1] = y[0];
+	mat[2] = z[0];
+	mat[3] = 0;
+	mat[4] = x[1];
+	mat[5] = y[1];
+	mat[6] = z[1];
+	mat[7] = 0;
+	mat[8] = x[2];
+	mat[9] = y[2];
+	mat[10] = z[2];
+	mat[11] = 0;
+	mat[12] = 0;
+	mat[13] = 0;
+	mat[14] = 0;
+	mat[15] = 1;
+	
+	mat4.identity(dest);
+	mat4.translate(dest, [-eye[0], -eye[1], -eye[2]]);
+	
+	return mat4.multiply(mat, dest, dest);
 };
 
-// TODO: lookAt?
+mat4.str = function(mat) {
+	return '[' + mat[0] + ', ' + mat[1] + ', ' + mat[2] + ', ' + mat[3] + 
+		', '+ mat[4] + ', ' + mat[5] + ', ' + mat[6] + ', ' + mat[7] + 
+		', '+ mat[8] + ', ' + mat[9] + ', ' + mat[10] + ', ' + mat[11] + 
+		', '+ mat[12] + ', ' + mat[13] + ', ' + mat[14] + ', ' + mat[15] + ']';
+};
