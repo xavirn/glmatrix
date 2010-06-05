@@ -5,7 +5,7 @@
 		<title>Matrix Benchmark</title>
 		
 		<!-- Common Utilities -->
-		<script type="text/javascript" src="../glMatrix.js"></script>
+		<script type="text/javascript" src="../glMatrix-min.js"></script>
 		<script type="text/javascript" src="js/CanvasMatrix.js"></script>
 		<script type="text/javascript" src="js/EWGL_math.js"></script>
 		<script type="text/javascript" src="js/mjs.js"></script>
@@ -75,15 +75,6 @@
 			
 			function mjsRandom() {
 				return new MJS_FLOAT_ARRAY_TYPE([
-					Math.random()*100, Math.random()*100, Math.random()*100, Math.random()*100,
-					Math.random()*100, Math.random()*100, Math.random()*100, Math.random()*100,
-					Math.random()*100, Math.random()*100, Math.random()*100, Math.random()*100,
-					Math.random()*100, Math.random()*100, Math.random()*100, Math.random()*100
-				]);
-			}
-			
-			function canvasMatrixRandom() {
-				return new CanvasMatrix4([
 					Math.random()*100, Math.random()*100, Math.random()*100, Math.random()*100,
 					Math.random()*100, Math.random()*100, Math.random()*100, Math.random()*100,
 					Math.random()*100, Math.random()*100, Math.random()*100, Math.random()*100,
@@ -391,7 +382,7 @@
 						return Date.now()-start;
 					}},
 					{ name: 'CanvasMatrix', test: null },
-					{ name: 'EWGL', test: null }
+					{ name: 'EWGL', test: null },
 				]);
 				
 				testSet('Vector Transformation', [
