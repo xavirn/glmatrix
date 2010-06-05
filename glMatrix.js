@@ -1,6 +1,6 @@
 /* 
  * glMatrix.js - High performance matrix and vector operations for WebGL
- * version 0.8 (Because no one want's to use a 0.1!)
+ * version 0.9
  */
  
 /*
@@ -37,9 +37,9 @@ if(typeof WebGLFloatArray != 'undefined') {
  * Vector
  */
 
-var vec3b = {};
+var vec3 = {};
 
-vec3b.create = function(vec) {
+vec3.create = function(vec) {
 	var dest = new glMatrixArrayType(3);
 	
 	if(vec) {
@@ -51,7 +51,7 @@ vec3b.create = function(vec) {
 	return dest;
 };
 
-vec3b.set = function(vec, dest) {
+vec3.set = function(vec, dest) {
 	dest[0] = vec[0];
 	dest[1] = vec[1];
 	dest[2] = vec[2];
@@ -59,7 +59,7 @@ vec3b.set = function(vec, dest) {
 	return dest;
 };
 
-vec3b.add = function(vec, vec2, dest) {
+vec3.add = function(vec, vec2, dest) {
 	if(!dest || vec == dest) {
 		vec[0] += vec2[0];
 		vec[1] += vec2[1];
@@ -73,7 +73,7 @@ vec3b.add = function(vec, vec2, dest) {
 	return dest;
 };
 
-vec3b.subtract = function(vec, vec2, dest) {
+vec3.subtract = function(vec, vec2, dest) {
 	if(!dest || vec == dest) {
 		vec[0] -= vec2[0];
 		vec[1] -= vec2[1];
@@ -87,7 +87,7 @@ vec3b.subtract = function(vec, vec2, dest) {
 	return dest;
 };
 
-vec3b.negate = function(vec, dest) {
+vec3.negate = function(vec, dest) {
 	if(!dest) { dest = vec; }
 	
 	dest[0] = -vec[0];
@@ -96,7 +96,7 @@ vec3b.negate = function(vec, dest) {
 	return dest;
 };
 
-vec3b.scale = function(vec, val, dest) {
+vec3.scale = function(vec, val, dest) {
 	if(!dest || vec == dest) {
 		vec[0] *= val;
 		vec[1] *= val;
@@ -110,7 +110,7 @@ vec3b.scale = function(vec, val, dest) {
 	return dest;
 };
 
-vec3b.normalize = function(vec, dest) {
+vec3.normalize = function(vec, dest) {
 	if(!dest) { dest = vec; }
 	
 	var x = vec[0], y = vec[1], z = vec[2];
@@ -135,7 +135,7 @@ vec3b.normalize = function(vec, dest) {
 	return dest;
 };
 
-vec3b.cross = function(vec, vec2, dest){
+vec3.cross = function(vec, vec2, dest){
 	if(!dest) { dest = vec; }
 	
 	var x = vec[0], y = vec[1], z = vec[2];
@@ -147,12 +147,12 @@ vec3b.cross = function(vec, vec2, dest){
 	return dest;
 };
 
-vec3b.length = function(vec){
+vec3.length = function(vec){
 	var x = vec[0], y = vec[1], z = vec[2];
 	return Math.sqrt(x * x + y * y + z * z);
 };
 
-vec3b.dot = function(vec, vec2){
+vec3.dot = function(vec, vec2){
 	return vec[0] * vec2[0] + vec[1] * vec2[1] + vec[2] * vec2[2];
 };
 
@@ -162,9 +162,9 @@ vec3b.dot = function(vec, vec2){
  * Matrix (3x3)
  */
 
-var mat3b = {};
+var mat3 = {};
 
-mat3b.create = function(mat) {
+mat3.create = function(mat) {
 	var dest = new glMatrixArrayType(9);
 	
 	if(mat) {
@@ -183,7 +183,7 @@ mat3b.create = function(mat) {
 	return dest;
 };
 
-mat3b.set = function(mat, dest) {
+mat3.set = function(mat, dest) {
 	dest[0] = mat[0];
 	dest[1] = mat[1];
 	dest[2] = mat[2];
@@ -200,9 +200,9 @@ mat3b.set = function(mat, dest) {
  * Matrix (4x4)
  */
 
-var mat4b = {};
+var mat4 = {};
 
-mat4b.create = function(mat) {
+mat4.create = function(mat) {
 	var dest = new glMatrixArrayType(16);
 	
 	if(mat) {
@@ -227,7 +227,7 @@ mat4b.create = function(mat) {
 	return dest;
 };
 
-mat4b.set = function(mat, dest) {
+mat4.set = function(mat, dest) {
 	dest[0] = mat[0];
 	dest[1] = mat[1];
 	dest[2] = mat[2];
@@ -247,7 +247,7 @@ mat4b.set = function(mat, dest) {
 	return dest;
 };
 
-mat4b.identity = function(dest) {
+mat4.identity = function(dest) {
 	dest[0] = 1;
 	dest[1] = 0;
 	dest[2] = 0;
@@ -267,7 +267,7 @@ mat4b.identity = function(dest) {
 	return dest;
 };
 
-mat4b.transpose = function(mat, dest) {
+mat4.transpose = function(mat, dest) {
 	// If we are transposing ourselves we can skip a few steps but have to cache some values
 	if(!dest || mat == dest) { 
 		var a01 = mat[1], a02 = mat[2], a03 = mat[3];
@@ -308,7 +308,7 @@ mat4b.transpose = function(mat, dest) {
 	return dest;
 };
 
-mat4b.determinant = function(mat) {
+mat4.determinant = function(mat) {
 	// Cache the matrix values (makes for huge speed increases!)
 	var a00 = mat[0], a01 = mat[1], a02 = mat[2], a03 = mat[3];
 	var a10 = mat[4], a11 = mat[5], a12 = mat[6], a13 = mat[7];
@@ -323,7 +323,7 @@ mat4b.determinant = function(mat) {
 			a20*a01*a12*a33 - a00*a21*a12*a33 - a10*a01*a22*a33 + a00*a11*a22*a33;
 };
 
-mat4b.inverse = function(mat, dest) {
+mat4.inverse = function(mat, dest) {
 	if(!dest) { dest = mat; }
 	
 	// Cache the matrix values (makes for huge speed increases!)
@@ -369,7 +369,7 @@ mat4b.inverse = function(mat, dest) {
 	return dest;
 };
 
-mat4b.inverse3x3 = function(mat, dest) {
+mat4.inverse3x3 = function(mat, dest) {
 	// Cache the matrix values (makes for huge speed increases!)
 	var a00 = mat[0], a01 = mat[1], a02 = mat[2];
 	var a10 = mat[4], a11 = mat[5], a12 = mat[6];
@@ -383,7 +383,7 @@ mat4b.inverse3x3 = function(mat, dest) {
 	if (d == 0) { return null; }
 	var id = 1/d;
 	
-	if(!dest) { dest = mat3b.create(); }
+	if(!dest) { dest = mat3.create(); }
 	
 	dest[0] = b01*id;
 	dest[1] = (-a22*a01 + a02*a21)*id;
@@ -398,7 +398,7 @@ mat4b.inverse3x3 = function(mat, dest) {
 	return dest;
 };
 
-mat4b.multiply = function(mat, mat2, dest) {
+mat4.multiply = function(mat, mat2, dest) {
 	if(!dest) { dest = mat }
 	
 	// Cache the matrix values (makes for huge speed increases!)
@@ -432,7 +432,7 @@ mat4b.multiply = function(mat, mat2, dest) {
 	return dest;
 };
 
-mat4b.multiplyVec3 = function(mat, vec, dest) {
+mat4.multiplyVec3 = function(mat, vec, dest) {
 	if(!dest) { dest = vec }
 	
 	var x = vec[0], y = vec[1], z = vec[2];
@@ -444,7 +444,7 @@ mat4b.multiplyVec3 = function(mat, vec, dest) {
 	return dest;
 };
 
-mat4b.multiplyVec4 = function(mat, vec, dest) {
+mat4.multiplyVec4 = function(mat, vec, dest) {
 	if(!dest) { dest = vec }
 	
 	var x = vec[0], y = vec[1], z = vec[2], w = vec[3];
@@ -457,7 +457,7 @@ mat4b.multiplyVec4 = function(mat, vec, dest) {
 	return dest;
 };
 
-mat4b.translate = function(mat, vec, dest) {
+mat4.translate = function(mat, vec, dest) {
 	var x = vec[0], y = vec[1], z = vec[2];
 	
 	if(!dest || mat == dest) {
@@ -492,7 +492,7 @@ mat4b.translate = function(mat, vec, dest) {
 	return dest;
 };
 
-mat4b.scale = function(mat, vec, dest) {
+mat4.scale = function(mat, vec, dest) {
 	var x = vec[0], y = vec[1], z = vec[2];
 	
 	if(!dest || mat == dest) {
@@ -530,7 +530,7 @@ mat4b.scale = function(mat, vec, dest) {
 	return dest;
 };
 
-mat4b.rotate = function(mat, angle, axis, dest) {
+mat4.rotate = function(mat, angle, axis, dest) {
 	
 	var x = axis[0], y = axis[1], z = axis[2];
 	var len = Math.sqrt(x * x + y * y + z * z);
@@ -581,7 +581,7 @@ mat4b.rotate = function(mat, angle, axis, dest) {
 	return dest;
 };
 
-mat4b.rotateX = function(mat, angle, dest) {
+mat4.rotateX = function(mat, angle, dest) {
 	var s = Math.sin(angle);
 	var c = Math.cos(angle);
 	
@@ -616,7 +616,7 @@ mat4b.rotateX = function(mat, angle, dest) {
 	return dest;
 };
 
-mat4b.rotateY = function(mat, angle, dest) {
+mat4.rotateY = function(mat, angle, dest) {
 	var s = Math.sin(angle);
 	var c = Math.cos(angle);
 	
@@ -651,7 +651,7 @@ mat4b.rotateY = function(mat, angle, dest) {
 	return dest;
 };
 
-mat4b.rotateZ = function(mat, angle, dest) {
+mat4.rotateZ = function(mat, angle, dest) {
 	var s = Math.sin(angle);
 	var c = Math.cos(angle);
 	
@@ -687,7 +687,7 @@ mat4b.rotateZ = function(mat, angle, dest) {
 	return dest;
 };
 
-mat4b.frustum = function(left, right, bottom, top, near, far, dest) {
+mat4.frustum = function(left, right, bottom, top, near, far, dest) {
 	dest[0] = (2 * near) / (right - left);
 	dest[1] = 0;
 	dest[2] = 0;
@@ -707,13 +707,13 @@ mat4b.frustum = function(left, right, bottom, top, near, far, dest) {
 	return dest;
 };
 
-mat4b.perspective = function(fovy, aspect, near, far, dest) {
+mat4.perspective = function(fovy, aspect, near, far, dest) {
 	var top = near * Math.tan(fovy * Math.PI / 360.0);
 	var right = top * aspect;
-	return mat4b.frustum(-right, right, -top, top, near, far, dest);
+	return mat4.frustum(-right, right, -top, top, near, far, dest);
 };
 
-mat4b.ortho = function(left, right, bottom, top, near, far, dest) {
+mat4.ortho = function(left, right, bottom, top, near, far, dest) {
 	dest[0] = 2 / (left - right);
 	dest[1] = 0;
 	dest[2] = 0;
@@ -733,7 +733,7 @@ mat4b.ortho = function(left, right, bottom, top, near, far, dest) {
 	return dest;
 };
 
-mat4b.str = function(mat) {
+mat4.str = function(mat) {
 	return '[' + mat.join(',') + ']';
 };
 
