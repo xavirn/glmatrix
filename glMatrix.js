@@ -1,6 +1,6 @@
 /* 
  * glMatrix.js - High performance matrix and vector operations for WebGL
- * version 0.9
+ * version 0.9.2
  */
  
 /*
@@ -116,7 +116,7 @@ vec3.normalize = function(vec, dest) {
 	var x = vec[0], y = vec[1], z = vec[2];
 	var len = Math.sqrt(x * x + y * y + z * z);
 	
-	if (len == 0) {
+	if (!len) {
 		dest[0] = 0;
 		dest[1] = 0;
 		dest[2] = 0;
@@ -139,7 +139,7 @@ vec3.cross = function(vec, vec2, dest){
 	if(!dest) { dest = vec; }
 	
 	var x = vec[0], y = vec[1], z = vec[2];
-	var x2 = vec[0], y2 = vec[1], z2 = vec[2];
+	var x2 = vec2[0], y2 = vec2[1], z2 = vec2[2];
 	
 	dest[0] = y*z2 - z*y2;
 	dest[1] = z*x2 - x*z2;
@@ -164,7 +164,7 @@ vec3.direction = function(vec, vec2, dest) {
 	var z = vec[2] - vec2[2];
 	
 	var len = Math.sqrt(x * x + y * y + z * z);
-	if (len == 0) { 
+	if (!len) { 
 		dest[0] = 0; 
 		dest[1] = 0; 
 		dest[2] = 0;
@@ -215,6 +215,32 @@ mat3.set = function(mat, dest) {
 	dest[8] = mat[8];
 	return dest;
 };
+
+mat3.toMat4 = function(mat, dest) {
+	if(!dest) { dest = mat4.create(); }
+	
+	dest[0] = mat[0];
+	dest[1] = mat[1];
+	dest[2] = mat[2];
+	dest[3] = 0;
+
+	dest[4] = mat[3];
+	dest[5] = mat[4];
+	dest[6] = mat[5];
+	dest[7] = 0;
+
+	dest[8] = mat[6];
+	dest[9] = mat[7];
+	dest[10] = mat[8];
+	dest[11] = 0;
+
+	dest[12] = 0;
+	dest[13] = 0;
+	dest[14] = 0;
+	dest[15] = 1;
+	
+	return dest;
+}
 
 /*
  * Matrix (4x4)
@@ -389,7 +415,23 @@ mat4.inverse = function(mat, dest) {
 	return dest;
 };
 
-mat4.inverse3x3 = function(mat, dest) {
+mat4.toMat3 = function(mat, dest) {
+	if(!dest) { dest = mat3.create(); }
+	
+	dest[0] = mat[0];
+	dest[1] = mat[1];
+	dest[2] = mat[2];
+	dest[3] = mat[4];
+	dest[4] = mat[5];
+	dest[5] = mat[6];
+	dest[6] = mat[8];
+	dest[7] = mat[9];
+	dest[8] = mat[10];
+	
+	return dest;
+};
+
+mat4.toInverseMat3 = function(mat, dest) {
 	// Cache the matrix values (makes for huge speed increases!)
 	var a00 = mat[0], a01 = mat[1], a02 = mat[2];
 	var a10 = mat[4], a11 = mat[5], a12 = mat[6];
@@ -400,7 +442,7 @@ mat4.inverse3x3 = function(mat, dest) {
 	var b21 = a21*a10-a11*a20;
 		
 	var d = a00*b01 + a01*b11 + a02*b21;
-	if (d == 0) { return null; }
+	if (!d) { return null; }
 	var id = 1/d;
 	
 	if(!dest) { dest = mat3.create(); }
@@ -554,7 +596,7 @@ mat4.rotate = function(mat, angle, axis, dest) {
 	
 	var x = axis[0], y = axis[1], z = axis[2];
 	var len = Math.sqrt(x * x + y * y + z * z);
-	if (len == 0) { return null; }
+	if (!len) { return null; }
 	if (len != 1) {
 		var ilen = 1 / len;
 		x *= ilen; y *= ilen; z *= ilen;
@@ -708,12 +750,12 @@ mat4.rotateZ = function(mat, angle, dest) {
 };
 
 mat4.frustum = function(left, right, bottom, top, near, far, dest) {
-	dest[0] = (2 * near) / (right - left);
+	dest[0] = (near << 1) / (right - left);
 	dest[1] = 0;
 	dest[2] = 0;
 	dest[3] = 0;
 	dest[4] = 0;
-	dest[5] = 2 * near / (top - bottom);
+	dest[5] = (near << 1) / (top - bottom);
 	dest[6] = 0;
 	dest[7] = 0;
 	dest[8] = (right + left) / (right - left);
@@ -722,7 +764,7 @@ mat4.frustum = function(left, right, bottom, top, near, far, dest) {
 	dest[11] = -1;
 	dest[12] = 0;
 	dest[13] = 0;
-	dest[14] = -(2 * far * near) / (far - near);
+	dest[14] = -(far * near << 1) / (far - near);
 	dest[15] = 0;
 	return dest;
 };
@@ -734,57 +776,105 @@ mat4.perspective = function(fovy, aspect, near, far, dest) {
 };
 
 mat4.ortho = function(left, right, bottom, top, near, far, dest) {
-	dest[0] = 2 / (left - right);
+	var lr = (left - right);
+	var tb = (top - bottom);
+	var fn = (far - near);
+	dest[0] = 2 / lr;
 	dest[1] = 0;
 	dest[2] = 0;
 	dest[3] = 0;
 	dest[4] = 0;
-	dest[5] = 2 / (top - bottom);
+	dest[5] = 2 / tb;
 	dest[6] = 0;
 	dest[7] = 0;
 	dest[8] = 0;
 	dest[9] = 0;
-	dest[10] = -2 / (far - near);
+	dest[10] = -2 / fn;
 	dest[11] = 0;
-	dest[12] = (left + right) / (left - right);
-	dest[13] = (top + bottom) / (top - bottom);
-	dest[14] = (far + near) / (far - near);
+	dest[12] = (left + right) / lr;
+	dest[13] = (top + bottom) / tb;
+	dest[14] = (far + near) / fn;
 	dest[15] = 1;
 	return dest;
 };
 
-// TODO: This function has not been optimized
 mat4.lookAt = function(eye, center, up, dest) {
-	
-	var x = vec3.create(), y = vec3.create(), z = vec3.create();
-	
-	vec3.direction(eye, center, z);
-	vec3.normalize(vec3.cross(up, z, x));
-	vec3.normalize(vec3.cross(z, x, y));
+	var eyex = eye[0],
+		eyey = eye[1],
+		eyez = eye[2],
+		upx = up[0],
+		upy = up[1],
+		upz = up[2],
+		centerx = center[0],
+		centery = center[1],
+		centerz = center[2];
 
-	var mat = mat4.create();
+	if (eyex == centerx && eyey == centery && eyez == centerz) {
+			return mat4.identity();
+	}
 	
-	mat[0] = x[0];
-	mat[1] = y[0];
-	mat[2] = z[0];
-	mat[3] = 0;
-	mat[4] = x[1];
-	mat[5] = y[1];
-	mat[6] = z[1];
-	mat[7] = 0;
-	mat[8] = x[2];
-	mat[9] = y[2];
-	mat[10] = z[2];
-	mat[11] = 0;
-	mat[12] = 0;
-	mat[13] = 0;
-	mat[14] = 0;
-	mat[15] = 1;
+	var z0,z1,z2,x0,x1,x2,y0,y1,y2,len;
 	
-	mat4.identity(dest);
-	mat4.translate(dest, [-eye[0], -eye[1], -eye[2]]);
+	//vec3.direction(eye, center, z);
+	z0 = eyex - center[0];
+	z1 = eyey - center[1];
+	z2 = eyez - center[2];
 	
-	return mat4.multiply(mat, dest, dest);
+	// normalize (no check needed for 0 becuase of early return)
+	len = Math.sqrt(z0 * z0 + z1 * z1 + z2 * z2);
+	z0 = z0/len;
+	z1 = z1/len;
+	z2 = z2/len;
+	
+	//vec3.normalize(vec3.cross(up, z, x));
+	x0 = upy * z2 - upz * z1;
+	x1 = upz * z0 - upx * z2;
+	x2 = upx * z1 - upy * z0;
+	len = Math.sqrt(x0 * x0 + x1 * x1 + x2 * x2);
+	if (!len) {
+		x0 = 0;
+		x1 = 0;
+		x2 = 0;
+	} else {
+		x0 = x0/len;
+		x1 = x1/len;
+		x2 = x2/len;
+	};
+	
+	//vec3.normalize(vec3.cross(z, x, y));
+	y0 = z1 * x2 - z2 * x1;
+	y1 = z2 * x0 - z0 * x2;
+	y2 = z0 * x1 - z1 * x0;
+	
+	len = Math.sqrt(y0 * y0 + y1 * y1 + y2 * y2);
+	if (!len) {
+		y0 = 0;
+		y1 = 0;
+		y2 = 0;
+	} else {
+		y0 = y0/len;
+		y1 = y1/len;
+		y2 = y2/len;
+	}
+	
+	dest[0] = x0;
+	dest[1] = y0;
+	dest[2] = z0;
+	dest[3] = 0;
+	dest[4] = x1;
+	dest[5] = y1;
+	dest[6] = z1;
+	dest[7] = 0;
+	dest[8] = x2;
+	dest[9] = y2;
+	dest[10] = z2;
+	dest[11] = 0;
+	dest[12] = -(x0 * eyex + x1 * eyey + x2 * eyez);
+	dest[13] = -(y0 * eyex + y1 * eyey + y2 * eyez);
+	dest[14] = -(z0 * eyex + z1 * eyey + z2 * eyez);
+	dest[15] = 1;
+	
+	return dest;
 };
 
 mat4.str = function(mat) {
@@ -793,3 +883,188 @@ mat4.str = function(mat) {
 		', '+ mat[8] + ', ' + mat[9] + ', ' + mat[10] + ', ' + mat[11] + 
 		', '+ mat[12] + ', ' + mat[13] + ', ' + mat[14] + ', ' + mat[15] + ']';
 };
+
+/*
+ * Quaternions 
+ */
+
+quat4 = {};
+
+quat4.set = function(quat, dest) {
+	dest[0] = quat[0];
+	dest[1] = quat[1];
+	dest[2] = quat[2];
+	dest[3] = quat[3];
+	
+	return dest;
+};
+
+quat4.calculateW = function(quat, dest) {
+	var x = quat[0], y = quat[1], z = quat[2];
+
+	if(!dest || quat == dest) {
+		quat[3] = -Math.sqrt(Math.abs(1.0 - x*x - y*y - z*z));
+		return quat;
+	}
+	dest[0] = x;
+	dest[1] = y;
+	dest[2] = z;
+	dest[3] = -Math.sqrt(Math.abs(1.0 - x*x - y*y - z*z));
+	return dest;
+}
+
+quat4.inverse = function(quat, dest) {
+	if(!dest || quat == dest) {
+		// TODO: val *= -1 maybe faster? Test that.
+		quat[0] = -quat[0];
+		quat[1] = -quat[1];
+		quat[2] = -quat[2];
+		return quat;
+	}
+	dest[0] = -quat[0];
+	dest[1] = -quat[1];
+	dest[2] = -quat[2];
+	dest[3] = quat[3];
+	return dest;
+}
+
+quat4.length = function(quat) {
+	var x = quat[0], y = quat[1], z = quat[2], w = quat[3];
+	return Math.sqrt(x*x + y*y + z*z + w*w);
+}
+
+quat4.normalize = function(quat) {
+	if(!dest) { dest = quat; }
+	
+	var x = quat[0], y = quat[1], z = quat[2], w = quat[3];
+	var len = Math.sqrt(x*x + y*y + z*z + w*w);
+	if(len == 0) {
+		dest[0] = 0;
+		dest[1] = 0;
+		dest[2] = 0;
+		dest[3] = 0;
+		return dest;
+	}
+	var il = 1/len;
+	dest[0] = x * il;
+	dest[1] = y * il;
+	dest[2] = z * il;
+	dest[3] = w * il;
+	
+	return dest;
+}
+
+quat4.multiply = function(qa, qb, dest) {
+	if(!dest) { dest = qa; }
+	
+	var qax = qa[0], qay = qa[1], qaz = qa[2], qaw = qa[3];
+	var qbx = qb[0], qby = qb[1], qbz = qb[2], qbw = qb[3];
+	
+	dest[0] = qax*qbw + qaw*qbx + qay*qbz - qaz*qby;
+	dest[1] = qay*qbw + qaw*qby + qaz*qbx - qax*qbz;
+	dest[2] = qaz*qbw + qaw*qbz + qax*qby - qay*qbx;
+	dest[3] = qaw*qbw - qax*qbx - qay*qby - qaz*qbz;
+	
+	return dest;
+}
+
+quat4.multiplyVec3 = function(quat, vec, dest) {
+	if(!dest) { dest = vec; }
+	
+	var x = vec[0], y = vec[1], z = vec[2];
+	var qx = quat[0], qy = quat[1], qz = quat[2], qw = quat[3];
+
+	// calculate quat * vec
+	var ix = qw*x + qy*z - qz*y;
+	var iy = qw*y + qz*x - qx*z;
+	var iz = qw*z + qx*y - qy*x;
+	var iw = -qx*x - qy*y - qz*z;
+	
+	// calculate result * inverse quat
+	dest[0] = ix*qw + iw*-qx + iy*-qz - iz*-qy;
+	dest[1] = iy*qw + iw*-qy + iz*-qx - ix*-qz;
+	dest[2] = iz*qw + iw*-qz + ix*-qy - iy*-qx;
+	
+	return dest;
+}
+
+quat4.toMat3 = function(quat, dest) {
+	if(!dest) { dest = mat3.create(); }
+	
+	var x = quat[0], y = quat[1], z = quat[2], w = quat[3];
+
+	var x2 = x + x;
+	var y2 = y + y;
+	var z2 = z + z;
+
+	var xx = x * x2;
+	var xy = x * y2;
+	var xz = x * z2;
+
+	var yy = y * y2;
+	var yz = y * z2;
+	var zz = z * z2;
+
+	var wx = w * x2;
+	var wy = w * y2;
+	var wz = w * z2;
+
+	dest[0] = 1 - (yy + zz);
+	dest[1] = xy - wz;
+	dest[2] = xz + wy;
+
+	dest[3] = xy + wz;
+	dest[4] = 1 - (xx + zz);
+	dest[5] = yz - wx;
+
+	dest[6] = xz - wy;
+	dest[7] = yz + wx;
+	dest[8] = 1 - (xx + yy);
+	
+	return dest;
+}
+
+quat4.toMat4 = function(quat, dest) {
+	if(!dest) { dest = mat4.create(); }
+	
+	var x = quat[0], y = quat[1], z = quat[2], w = quat[3];
+
+	var x2 = x + x;
+	var y2 = y + y;
+	var z2 = z + z;
+
+	var xx = x * x2;
+	var xy = x * y2;
+	var xz = x * z2;
+
+	var yy = y * y2;
+	var yz = y * z2;
+	var zz = z * z2;
+
+	var wx = w * x2;
+	var wy = w * y2;
+	var wz = w * z2;
+
+	dest[0] = 1 - (yy + zz);
+	dest[1] = xy - wz;
+	dest[2] = xz + wy;
+	dest[3] = 0;
+
+	dest[4] = xy + wz;
+	dest[5] = 1 - (xx + zz);
+	dest[6] = yz - wx;
+	dest[7] = 0;
+
+	dest[8] = xz - wy;
+	dest[9] = yz + wx;
+	dest[10] = 1 - (xx + yy);
+	dest[11] = 0;
+
+	dest[12] = 0;
+	dest[13] = 0;
+	dest[14] = 0;
+	dest[15] = 1;
+	
+	return dest;
+}
+
