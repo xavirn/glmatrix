@@ -1,6 +1,6 @@
 /* 
  * glMatrix.js - High performance matrix and vector operations for WebGL
- * version 0.9.2
+ * version 0.9.3
  */
  
 /*
@@ -750,12 +750,12 @@ mat4.rotateZ = function(mat, angle, dest) {
 };
 
 mat4.frustum = function(left, right, bottom, top, near, far, dest) {
-	dest[0] = (near << 1) / (right - left);
+	dest[0] = (near * 2) / (right - left);
 	dest[1] = 0;
 	dest[2] = 0;
 	dest[3] = 0;
 	dest[4] = 0;
-	dest[5] = (near << 1) / (top - bottom);
+	dest[5] = (near * 2) / (top - bottom);
 	dest[6] = 0;
 	dest[7] = 0;
 	dest[8] = (right + left) / (right - left);
@@ -764,7 +764,7 @@ mat4.frustum = function(left, right, bottom, top, near, far, dest) {
 	dest[11] = -1;
 	dest[12] = 0;
 	dest[13] = 0;
-	dest[14] = -(far * near << 1) / (far - near);
+	dest[14] = -(far * near * 2) / (far - near);
 	dest[15] = 0;
 	return dest;
 };
