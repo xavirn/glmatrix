@@ -1,6 +1,6 @@
 /* 
  * glMatrix.js - High performance matrix and vector operations for WebGL
- * version 0.9.3
+ * version 0.9.4
  */
  
 /*
@@ -34,11 +34,21 @@ if(typeof WebGLFloatArray != 'undefined') {
 }
 
 /*
- * Vector
+ * vec3 - 3 Dimensional Vector
  */
-
 var vec3 = {};
 
+/*
+ * vec3.create
+ * Creates a new instance of a vec3 using the default array type
+ * Any javascript array containing at least 3 numeric elements can serve as a vec3
+ *
+ * Params:
+ * vec - Optional, vec3 containing values to initialize with
+ *
+ * Returns:
+ * New vec3
+ */
 vec3.create = function(vec) {
 	var dest = new glMatrixArrayType(3);
 	
@@ -51,6 +61,17 @@ vec3.create = function(vec) {
 	return dest;
 };
 
+/*
+ * vec3.set
+ * Copies the values of one vec3 to another
+ *
+ * Params:
+ * vec - vec3 containing values to copy
+ * dest - vec3 receiving copied values
+ *
+ * Returns:
+ * dest
+ */
 vec3.set = function(vec, dest) {
 	dest[0] = vec[0];
 	dest[1] = vec[1];
@@ -59,6 +80,18 @@ vec3.set = function(vec, dest) {
 	return dest;
 };
 
+/*
+ * vec3.add
+ * Performs a vector addition
+ *
+ * Params:
+ * vec - vec3, first operand
+ * vec2 - vec3, second operand
+ * dest - Optional, vec3 receiving operation result. If not specified result is written to vec
+ *
+ * Returns:
+ * dest if specified, vec otherwise
+ */
 vec3.add = function(vec, vec2, dest) {
 	if(!dest || vec == dest) {
 		vec[0] += vec2[0];
@@ -73,6 +106,18 @@ vec3.add = function(vec, vec2, dest) {
 	return dest;
 };
 
+/*
+ * vec3.subtract
+ * Performs a vector subtraction
+ *
+ * Params:
+ * vec - vec3, first operand
+ * vec2 - vec3, second operand
+ * dest - Optional, vec3 receiving operation result. If not specified result is written to vec
+ *
+ * Returns:
+ * dest if specified, vec otherwise
+ */
 vec3.subtract = function(vec, vec2, dest) {
 	if(!dest || vec == dest) {
 		vec[0] -= vec2[0];
@@ -87,6 +132,17 @@ vec3.subtract = function(vec, vec2, dest) {
 	return dest;
 };
 
+/*
+ * vec3.negate
+ * Negates the components of a vec3
+ *
+ * Params:
+ * vec - vec3 to negate
+ * dest - Optional, vec3 receiving operation result. If not specified result is written to vec
+ *
+ * Returns:
+ * dest if specified, vec otherwise
+ */
 vec3.negate = function(vec, dest) {
 	if(!dest) { dest = vec; }
 	
@@ -96,6 +152,18 @@ vec3.negate = function(vec, dest) {
 	return dest;
 };
 
+/*
+ * vec3.scale
+ * Multiplies the components of a vec3 by a scalar value
+ *
+ * Params:
+ * vec - vec3 to scale
+ * val - Numeric value to scale by
+ * dest - Optional, vec3 receiving operation result. If not specified result is written to vec
+ *
+ * Returns:
+ * dest if specified, vec otherwise
+ */
 vec3.scale = function(vec, val, dest) {
 	if(!dest || vec == dest) {
 		vec[0] *= val;
@@ -110,6 +178,18 @@ vec3.scale = function(vec, val, dest) {
 	return dest;
 };
 
+/*
+ * vec3.normalize
+ * Generates a unit vector of the same direction as the provided vec3
+ * If vector length is 0, returns [0, 0, 0]
+ *
+ * Params:
+ * vec - vec3 to normalize
+ * dest - Optional, vec3 receiving operation result. If not specified result is written to vec
+ *
+ * Returns:
+ * dest if specified, vec otherwise
+ */
 vec3.normalize = function(vec, dest) {
 	if(!dest) { dest = vec; }
 	
@@ -128,13 +208,25 @@ vec3.normalize = function(vec, dest) {
 		return dest;
 	}
 	
-	var ilen = 1 / len;
-	dest[0] = x * ilen;
-	dest[1] = y * ilen;
-	dest[2] = z * ilen;
+	len = 1 / len;
+	dest[0] = x * len;
+	dest[1] = y * len;
+	dest[2] = z * len;
 	return dest;
 };
 
+/*
+ * vec3.cross
+ * Generates the cross product of two vec3s
+ *
+ * Params:
+ * vec - vec3, first operand
+ * vec2 - vec3, second operand
+ * dest - Optional, vec3 receiving operation result. If not specified result is written to vec
+ *
+ * Returns:
+ * dest if specified, vec otherwise
+ */
 vec3.cross = function(vec, vec2, dest){
 	if(!dest) { dest = vec; }
 	
@@ -147,15 +239,48 @@ vec3.cross = function(vec, vec2, dest){
 	return dest;
 };
 
+/*
+ * vec3.length
+ * Caclulates the length of a vec3
+ *
+ * Params:
+ * vec - vec3 to calculate length of
+ *
+ * Returns:
+ * Length of vec
+ */
 vec3.length = function(vec){
 	var x = vec[0], y = vec[1], z = vec[2];
 	return Math.sqrt(x * x + y * y + z * z);
 };
 
+/*
+ * vec3.dot
+ * Caclulates the dot product of two vec3s
+ *
+ * Params:
+ * vec - vec3, first operand
+ * vec2 - vec3, second operand
+ *
+ * Returns:
+ * Dot product of vec and vec2
+ */
 vec3.dot = function(vec, vec2){
 	return vec[0] * vec2[0] + vec[1] * vec2[1] + vec[2] * vec2[2];
 };
 
+/*
+ * vec3.direction
+ * Generates a unit vector pointing from one vector to another
+ *
+ * Params:
+ * vec - origin vec3
+ * vec2 - vec3 to point to
+ * dest - Optional, vec3 receiving operation result. If not specified result is written to vec
+ *
+ * Returns:
+ * dest if specified, vec otherwise
+ */
 vec3.direction = function(vec, vec2, dest) {
 	if(!dest) { dest = vec; }
 	
@@ -171,10 +296,10 @@ vec3.direction = function(vec, vec2, dest) {
 		return dest; 
 	}
 	
-	var ilen = 1 / len;
-	dest[0] = x * ilen; 
-	dest[1] = y * ilen; 
-	dest[2] = z * ilen;
+	len = 1 / len;
+	dest[0] = x * len; 
+	dest[1] = y * len; 
+	dest[2] = z * len;
 	return dest; 
 };
 
@@ -598,8 +723,10 @@ mat4.rotate = function(mat, angle, axis, dest) {
 	var len = Math.sqrt(x * x + y * y + z * z);
 	if (!len) { return null; }
 	if (len != 1) {
-		var ilen = 1 / len;
-		x *= ilen; y *= ilen; z *= ilen;
+		len = 1 / len;
+		x *= len; 
+		y *= len; 
+		z *= len;
 	}
 	
 	var s = Math.sin(angle);
@@ -810,7 +937,7 @@ mat4.lookAt = function(eye, center, up, dest) {
 		centerz = center[2];
 
 	if (eyex == centerx && eyey == centery && eyez == centerz) {
-			return mat4.identity();
+			return mat4.identity(dest);
 	}
 	
 	var z0,z1,z2,x0,x1,x2,y0,y1,y2,len;
@@ -820,11 +947,11 @@ mat4.lookAt = function(eye, center, up, dest) {
 	z1 = eyey - center[1];
 	z2 = eyez - center[2];
 	
-	// normalize (no check needed for 0 becuase of early return)
-	len = Math.sqrt(z0 * z0 + z1 * z1 + z2 * z2);
-	z0 = z0/len;
-	z1 = z1/len;
-	z2 = z2/len;
+	// normalize (no check needed for 0 because of early return)
+	len = 1/Math.sqrt(z0 * z0 + z1 * z1 + z2 * z2);
+	z0 *= len;
+	z1 *= len;
+	z2 *= len;
 	
 	//vec3.normalize(vec3.cross(up, z, x));
 	x0 = upy * z2 - upz * z1;
@@ -836,9 +963,10 @@ mat4.lookAt = function(eye, center, up, dest) {
 		x1 = 0;
 		x2 = 0;
 	} else {
-		x0 = x0/len;
-		x1 = x1/len;
-		x2 = x2/len;
+		len = 1/len;
+		x0 *= len;
+		x1 *= len;
+		x2 *= len;
 	};
 	
 	//vec3.normalize(vec3.cross(z, x, y));
@@ -852,9 +980,10 @@ mat4.lookAt = function(eye, center, up, dest) {
 		y1 = 0;
 		y2 = 0;
 	} else {
-		y0 = y0/len;
-		y1 = y1/len;
-		y2 = y2/len;
+		len = 1/len;
+		y0 *= len;
+		y1 *= len;
+		y2 *= len;
 	}
 	
 	dest[0] = x0;
@@ -890,6 +1019,19 @@ mat4.str = function(mat) {
 
 quat4 = {};
 
+quat4.create = function(quat) {
+	var dest = new glMatrixArrayType(4);
+	
+	if(quat) {
+		dest[0] = quat[0];
+		dest[1] = quat[1];
+		dest[2] = quat[2];
+		dest[3] = quat[3];
+	}
+	
+	return dest;
+};
+
 quat4.set = function(quat, dest) {
 	dest[0] = quat[0];
 	dest[1] = quat[1];
@@ -915,10 +1057,9 @@ quat4.calculateW = function(quat, dest) {
 
 quat4.inverse = function(quat, dest) {
 	if(!dest || quat == dest) {
-		// TODO: val *= -1 maybe faster? Test that.
-		quat[0] = -quat[0];
-		quat[1] = -quat[1];
-		quat[2] = -quat[2];
+		quat[0] *= 1;
+		quat[1] *= 1;
+		quat[2] *= 1;
 		return quat;
 	}
 	dest[0] = -quat[0];
@@ -933,7 +1074,7 @@ quat4.length = function(quat) {
 	return Math.sqrt(x*x + y*y + z*z + w*w);
 }
 
-quat4.normalize = function(quat) {
+quat4.normalize = function(quat, dest) {
 	if(!dest) { dest = quat; }
 	
 	var x = quat[0], y = quat[1], z = quat[2], w = quat[3];
@@ -945,11 +1086,11 @@ quat4.normalize = function(quat) {
 		dest[3] = 0;
 		return dest;
 	}
-	var il = 1/len;
-	dest[0] = x * il;
-	dest[1] = y * il;
-	dest[2] = z * il;
-	dest[3] = w * il;
+	len = 1/len;
+	dest[0] = x * len;
+	dest[1] = y * len;
+	dest[2] = z * len;
+	dest[3] = w * len;
 	
 	return dest;
 }
