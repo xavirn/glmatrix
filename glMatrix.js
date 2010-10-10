@@ -690,6 +690,40 @@ mat4.inverse = function(mat, dest) {
 };
 
 /*
+ * mat4.toRotationMat
+ * Copies the upper 3x3 elements of a mat4 into another mat4
+ *
+ * Params:
+ * mat - mat4 containing values to copy
+ * dest - Optional, mat4 receiving copied values
+ *
+ * Returns:
+ * dest is specified, a new mat4 otherwise
+ */
+mat4.toRotationMat = function(mat, dest) {
+	if(!dest) { dest = mat4.create(); }
+	
+	dest[0] = mat[0];
+	dest[1] = mat[1];
+	dest[2] = mat[2];
+	dest[3] = mat[3];
+	dest[4] = mat[4];
+	dest[5] = mat[5];
+	dest[6] = mat[6];
+	dest[7] = mat[7];
+	dest[8] = mat[8];
+	dest[9] = mat[9];
+	dest[10] = mat[10];
+	dest[11] = mat[11];
+	dest[12] = 0;
+	dest[13] = 0;
+	dest[14] = 0;
+	dest[15] = 1;
+	
+	return dest;
+};
+
+/*
  * mat4.toMat3
  * Copies the upper 3x3 elements of a mat4 into a mat3
  *
