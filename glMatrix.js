@@ -1,10 +1,10 @@
 /* 
  * glMatrix.js - High performance matrix and vector operations for WebGL
- * version 0.9.5
+ * version 0.9.6
  */
  
 /*
- * Copyright (c) 2010 Brandon Jones
+ * Copyright (c) 2011 Brandon Jones
  *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -371,7 +371,6 @@ mat3.create = function(mat) {
 		dest[6] = mat[6];
 		dest[7] = mat[7];
 		dest[8] = mat[8];
-		dest[9] = mat[9];
 	}
 	
 	return dest;
