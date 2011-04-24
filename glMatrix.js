@@ -1548,9 +1548,9 @@ quat4.calculateW = function(quat, dest) {
  */
 quat4.inverse = function(quat, dest) {
 	if(!dest || quat == dest) {
-		quat[0] *= 1;
-		quat[1] *= 1;
-		quat[2] *= 1;
+		quat[0] *= -1;
+		quat[1] *= -1;
+		quat[2] *= -1;
 		return quat;
 	}
 	dest[0] = -quat[0];
@@ -1775,29 +1775,49 @@ quat4.toMat4 = function(quat, dest) {
  * Params:
  * quat - quat4, first quaternion
  * quat2 - quat4, second quaternion
- * lerp - interpolation amount between the two inputs
+ * slerp - interpolation amount between the two inputs
  * dest - Optional, quat4 receiving operation result. If not specified result is written to quat
  *
  * Returns:
  * dest if specified, quat otherwise
  */
-quat4.slerp = function(quat, quat2, lerp, dest) {
+quat4.slerp = function(quat, quat2, slerp, dest) {
     if(!dest) { dest = quat; }
     
-    var eps_lerp = lerp;
-    
-    var dot = quat[0]*quat2[0] + quat[1]*quat2[1] + quat[2]*quat2[2] + quat[3]*quat2[3];
-    if (dot < 0.0) { 
-        eps_lerp = -1.0 * lerp;
-    }
-    
-    dest[0] = 1.0 - lerp * quat[0] + eps_lerp * quat2[0];
-    dest[1] = 1.0 - lerp * quat[1] + eps_lerp * quat2[1];
-    dest[2] = 1.0 - lerp * quat[2] + eps_lerp * quat2[2];
-    dest[3] = 1.0 - lerp * quat[3] + eps_lerp * quat2[3];
-    
-    return dest;
+	var cosHalfTheta =  quat[0]*quat2[0] + quat[1]*quat2[1] + quat[2]*quat2[2] + quat[3]*quat2[3];
+	
+	if (Math.abs(cosHalfTheta) >= 1.0){
+	    if(dest != quat) {
+		    dest[0] = quat[0];
+		    dest[1] = quat[1];
+		    dest[2] = quat[2];
+		    dest[3] = quat[3];
+		}
+		return dest;
+	}
+	
+	var halfTheta = Math.acos(cosHalfTheta);
+	var sinHalfTheta = Math.sqrt(1.0 - cosHalfTheta*cosHalfTheta);
+
+	if (Math.abs(sinHalfTheta) < 0.001){
+		dest[0] = (quat[0]*0.5 + quat2[0]*0.5);
+		dest[1] = (quat[1]*0.5 + quat2[1]*0.5);
+		dest[2] = (quat[2]*0.5 + quat2[2]*0.5);
+		dest[3] = (quat[3]*0.5 + quat2[3]*0.5);
+		return dest;
+	}
+	
+	var ratioA = Math.sin((1 - slerp)*halfTheta) / sinHalfTheta;
+	var ratioB = Math.sin(slerp*halfTheta) / sinHalfTheta; 
+	
+	dest[0] = (quat[0]*ratioA + quat2[0]*ratioB);
+	dest[1] = (quat[1]*ratioA + quat2[1]*ratioB);
+	dest[2] = (quat[2]*ratioA + quat2[2]*ratioB);
+	dest[3] = (quat[3]*ratioA + quat2[3]*ratioB);
+	
+	return dest;
 }
+
 
 /*
  * quat4.str
